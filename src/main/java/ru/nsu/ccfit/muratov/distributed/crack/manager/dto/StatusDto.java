@@ -1,4 +1,4 @@
-package ru.nsu.ccfit.muratov.distributed.crack.dto;
+package ru.nsu.ccfit.muratov.distributed.crack.manager.dto;
 
 import lombok.Data;
 

@@ -1,11 +1,11 @@
-package ru.nsu.ccfit.muratov.distributed.crack.controller;
+package ru.nsu.ccfit.muratov.distributed.crack.manager.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.nsu.ccfit.muratov.distributed.crack.dto.CrackRequestDto;
-import ru.nsu.ccfit.muratov.distributed.crack.dto.CrackResponseDto;
-import ru.nsu.ccfit.muratov.distributed.crack.dto.StatusDto;
-import ru.nsu.ccfit.muratov.distributed.crack.service.CrackService;
+import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.CrackRequestDto;
+import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.CrackResponseDto;
+import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.StatusDto;
+import ru.nsu.ccfit.muratov.distributed.crack.manager.service.CrackService;
 
 @RestController
 public class RequestController {
