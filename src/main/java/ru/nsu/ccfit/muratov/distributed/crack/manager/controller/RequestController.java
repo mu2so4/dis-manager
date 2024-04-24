@@ -8,17 +8,18 @@ import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.StatusDto;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.CrackService;
 
 @RestController
+@RequestMapping(value = "/api/hash")
 public class RequestController {
     @Autowired
     private CrackService service;
 
-    @PostMapping(value = "/api/hash/crack", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/crack", consumes = "application/json", produces = "application/json")
     public CrackResponseDto createRequest(@RequestBody CrackRequestDto request) {
         return service.createCrackRequest(request);
     }
 
 
-    @GetMapping(value = "/api/hash/status", consumes = "application/json", produces = "application/json")
+    @GetMapping(value = "/status", consumes = "application/json", produces = "application/json")
     public StatusDto getStatus(@RequestParam(name="requestId") String id) {
         return service.getCrackStatus(id);
     }
