@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.CrackRequestDto;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.CrackResponseDto;
@@ -24,26 +26,32 @@ public class RequestController {
     @Autowired
     private WorkerService workers;
 
-    private void assignTask(RequestDto dto) {
-        Worker worker = workers.getIdleWorker();
+    private final WebClient client = WebClient.create();
+
+    private void assignTask(RequestDto dto, Worker worker) {
         String uriTemplate = "http://%s/internal/api/worker/hash/crack/task";
         String uri = String.format(uriTemplate, worker.getHostname());
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpEntity<RequestDto> request = new HttpEntity<>(dto);
-        restTemplate.postForLocation(uri, request, RequestDto.class);
+        client
+                .post()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(dto)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .subscribe();
     }
 
     @PostMapping(value = "/crack", consumes = "application/json", produces = "application/json")
     public CrackResponseDto createRequest(@RequestBody CrackRequestDto request) {
         String hash = request.getHash();
         int maxLength = request.getMaxLength();
+
         String id = service.createCrackRequest(hash, maxLength);
-
+        Worker worker = workers.getIdleWorker();
+        service.getCrackStatus(id).setWorker(worker);
         RequestDto internalDto = new RequestDto(id, hash, maxLength);
-        assignTask(internalDto);
+        assignTask(internalDto, worker);
 
-        //todo send id immediately generating
         return new CrackResponseDto(id);
     }
 
