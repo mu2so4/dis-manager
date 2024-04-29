@@ -1,4 +1,4 @@
-package ru.nsu.ccfit.muratov.distributed.crack;
+package ru.nsu.ccfit.muratov.distributed.crack.manager;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
