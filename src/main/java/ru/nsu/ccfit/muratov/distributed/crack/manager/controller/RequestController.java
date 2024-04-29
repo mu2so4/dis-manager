@@ -9,9 +9,11 @@ import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.CrackRequestDto;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.CrackResponseDto;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.StatusDto;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.internal.RequestDto;
+import ru.nsu.ccfit.muratov.distributed.crack.manager.repository.Worker;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.Request;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.RequestStatus;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.CrackService;
+import ru.nsu.ccfit.muratov.distributed.crack.manager.service.WorkerService;
 
 @RestController
 @RequestMapping(value = "/api/hash")
@@ -19,12 +21,17 @@ public class RequestController {
     @Autowired
     private CrackService service;
 
+    @Autowired
+    private WorkerService workers;
+
     private void assignTask(RequestDto dto) {
-        String uriTemplate = "http://worker-1:8081/internal/api/worker/hash/crack/task";
+        Worker worker = workers.getIdleWorker();
+        String uriTemplate = "http://%s/internal/api/worker/hash/crack/task";
+        String uri = String.format(uriTemplate, worker.getHostname());
         RestTemplate restTemplate = new RestTemplate();
 
         HttpEntity<RequestDto> request = new HttpEntity<>(dto);
-        restTemplate.postForLocation(uriTemplate, request, RequestDto.class);
+        restTemplate.postForLocation(uri, request, RequestDto.class);
     }
 
     @PostMapping(value = "/crack", consumes = "application/json", produces = "application/json")
