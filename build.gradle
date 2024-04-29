@@ -5,10 +5,10 @@ plugins {
 }
 
 group = 'ru.nsu.ccfit.muratov.distributed'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0'
 
 java {
-	sourceCompatibility = '18'
+	sourceCompatibility = '17'
 }
 
 repositories {
