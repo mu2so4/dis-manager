@@ -20,7 +20,7 @@ public class RequestController {
     private CrackService service;
 
     private void assignTask(RequestDto dto) {
-        String uriTemplate = "http://localhost:8081/internal/api/worker/hash/crack/task";
+        String uriTemplate = "http://worker-1:8081/internal/api/worker/hash/crack/task";
         RestTemplate restTemplate = new RestTemplate();
 
         HttpEntity<RequestDto> request = new HttpEntity<>(dto);
