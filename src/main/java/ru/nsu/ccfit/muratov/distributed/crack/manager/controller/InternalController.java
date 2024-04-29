@@ -10,15 +10,20 @@ import ru.nsu.ccfit.muratov.distributed.crack.manager.service.CrackService;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.Request;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.RequestStatus;
 
+import java.util.logging.Logger;
+
 @RestController
 @RequestMapping(value="/internal/api/manager/hash/crack")
 public class InternalController {
     @Autowired
     private CrackService service;
 
+    private static final Logger logger = Logger.getLogger(InternalController.class.getCanonicalName());
+
 
     @PatchMapping(value = "/request")
     public void getResult(@RequestBody ResponseDto response) {
+        logger.info(() -> "got response for request " + response.getRequestId());
         Request request = service.getCrackStatus(response.getRequestId());
         String[] data = response.getData();
         if(data != null) {

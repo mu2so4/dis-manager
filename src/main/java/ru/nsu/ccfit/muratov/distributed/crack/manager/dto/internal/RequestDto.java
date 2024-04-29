@@ -5,7 +5,8 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ResponseDto {
+public class RequestDto {
     private String requestId;
-    private String[] data;
+    private String hash;
+    private int maxLength;
 }
