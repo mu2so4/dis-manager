@@ -25,10 +25,10 @@ public class RequestController {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    @Value("${rabbitmq.exchange.name}")
+    @Value("${rabbitmq.request.exchange.name}")
     private String exchange;
 
-    @Value("${rabbitmq.routing.key}")
+    @Value("${rabbitmq.request.routing.key}")
     private String routingJsonKey;
 
     private static final Logger logger = Logger.getLogger(RequestController.class.getCanonicalName());
