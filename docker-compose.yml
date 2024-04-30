@@ -2,34 +2,46 @@ version: "3.3"
 
 services:
   manager:
-    image: crack-manager:1.0.0
-    #build: .
+    image: crack-manager:1.1.0
+    container_name: manager
     ports:
       - "8080:8080"
+    depends_on:
+      - rabbitmq
     networks:
       - crack-network
 
   worker-1:
-    image: crack-worker:1.0.0
+    image: crack-worker:1.1.0
+    container_name: worker-1
     ports:
       - "8081"
+    depends_on:
+      - rabbitmq
     networks:
       - crack-network
+
+  worker-2:
+    image: crack-worker:1.1.0
+    container_name: worker-2
+    ports:
+      - "8082"
     depends_on:
-      - manager
+      - rabbitmq
+    networks:
+      - crack-network
 
 
   rabbitmq:
     image: rabbitmq:3.6-management-alpine
-
+    container_name: rabbitmq
     ports:
       # The standard AMQP protocol port
-      - "5672:5672"
+      - "5672"
       # HTTP management UI
       - "15672:15672"
     networks:
       - crack-network
-
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=admin
