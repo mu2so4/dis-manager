@@ -5,17 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.CrackRequestDto;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.CrackResponseDto;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.StatusDto;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.internal.RequestDto;
-import ru.nsu.ccfit.muratov.distributed.crack.manager.repository.Worker;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.Request;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.RequestStatus;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.CrackService;
-import ru.nsu.ccfit.muratov.distributed.crack.manager.service.WorkerService;
+
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping(value = "/api/hash")
@@ -24,11 +23,7 @@ public class RequestController {
     private CrackService service;
 
     @Autowired
-    private WorkerService workers;
-
-    @Autowired
     private RabbitTemplate rabbitTemplate;
-
 
     @Value("${rabbitmq.exchange.name}")
     private String exchange;
@@ -36,32 +31,17 @@ public class RequestController {
     @Value("${rabbitmq.routing.key}")
     private String routingJsonKey;
 
-    private final WebClient client = WebClient.create();
-
-    private void assignTask(RequestDto dto, Worker worker) {
-        String uriTemplate = "http://%s/internal/api/worker/hash/crack/task";
-        String uri = String.format(uriTemplate, worker.getHostname());
-        client
-                .post()
-                .uri(uri)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(dto)
-                .retrieve()
-                .bodyToMono(Void.class)
-                .subscribe();
-    }
+    private static final Logger logger = Logger.getLogger(RequestController.class.getCanonicalName());
 
     @PostMapping(value = "/crack", consumes = "application/json", produces = "application/json")
     public CrackResponseDto createRequest(@RequestBody CrackRequestDto request) {
+        logger.info("got request " + request.toString());
         String hash = request.getHash();
         int maxLength = request.getMaxLength();
 
         String id = service.createCrackRequest(hash, maxLength);
-        Worker worker = workers.getIdleWorker();
-        service.getCrackStatus(id).setWorker(worker);
         RequestDto internalDto = new RequestDto(id, hash, maxLength);
         rabbitTemplate.convertAndSend(exchange, routingJsonKey, internalDto);
-        assignTask(internalDto, worker);
 
         return new CrackResponseDto(id);
     }
