@@ -5,7 +5,7 @@ services:
     image: crack-manager:1.0.0
     #build: .
     ports:
-      - "18080:8080"
+      - "8080:8080"
     networks:
       - crack-network
 

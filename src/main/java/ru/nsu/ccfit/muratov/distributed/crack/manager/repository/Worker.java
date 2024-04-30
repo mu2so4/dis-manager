@@ -5,11 +5,13 @@ import lombok.Setter;
 
 @Getter
 public class Worker {
+    private final String id;
     private final String hostname;
     @Setter
     private WorkerStatus status = WorkerStatus.IDLE;
 
-    public Worker(String hostname) {
+    public Worker(String id, String hostname) {
+        this.id = id;
         this.hostname = hostname;
     }
 }

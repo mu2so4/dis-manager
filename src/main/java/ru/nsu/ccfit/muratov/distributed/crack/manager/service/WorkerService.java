@@ -7,5 +7,6 @@ public interface WorkerService {
     Worker deleteWorker(String hostname);
 
     Worker getIdleWorker();
+    Worker getWorker(String hostname);
     void freeWorker(String hostname);
 }

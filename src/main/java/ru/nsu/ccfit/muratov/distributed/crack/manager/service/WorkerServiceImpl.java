@@ -40,6 +40,16 @@ public class WorkerServiceImpl implements WorkerService {
     }
 
     @Override
+    public synchronized Worker getWorker(String hostname) {
+        for(Worker worker: pool.getWorkers()) {
+            if(worker.getHostname().equals(hostname)) {
+                return worker;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public synchronized void freeWorker(String hostname) {
         Worker worker = pool.getWorker(hostname);
         if(worker == null) {

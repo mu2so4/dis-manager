@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.PortDto;
+import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.WorkerIdDto;
+import ru.nsu.ccfit.muratov.distributed.crack.manager.repository.Worker;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.WorkerService;
 
 import java.util.logging.Logger;
@@ -18,24 +20,21 @@ public class WorkerController {
 
 
     @PostMapping
-    public void greet(HttpServletRequest request, @RequestBody PortDto dto) {
+    public WorkerIdDto greet(HttpServletRequest request, @RequestBody PortDto dto) {
         String hostname = request.getRemoteHost();
         String fullHostname = hostname + ':' + dto.getPort();
 
         if(service.addWorker(fullHostname)) {
             logger.info("joined host " + fullHostname);
         }
-        //todo sign in of worker
+        String id = service.getWorker(fullHostname).getId();
+        return new WorkerIdDto(id);
     }
 
-    @DeleteMapping
-    public void fare(HttpServletRequest request, @RequestBody PortDto dto) {
-        String hostname = request.getRemoteHost();
-        String fullHostname = hostname + ':' + dto.getPort();
+    @DeleteMapping("/{workerId}")
+    public void fare(@PathVariable(name = "workerId") String workerId) {
+        Worker deletedWorker = service.deleteWorker(workerId);
 
-        service.deleteWorker(fullHostname);
-
-        logger.info("left host " + fullHostname);
-        //todo sign out of worker
+        logger.info("left host " + deletedWorker.getHostname());
     }
 }
