@@ -3,8 +3,6 @@ package ru.nsu.ccfit.muratov.distributed.crack.manager.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.CrackRequestDto;

@@ -1,10 +1,8 @@
 package ru.nsu.ccfit.muratov.distributed.crack.manager.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.internal.ResponseDto;
-import ru.nsu.ccfit.muratov.distributed.crack.manager.repository.WorkerStatus;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.CrackService;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.Request;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.RequestStatus;
@@ -25,10 +23,10 @@ public class InternalController {
 
 
     @PatchMapping(value = "/request")
-    public void getResult(@RequestBody ResponseDto response, HttpServletRequest servletRequest) {
+    public void getResult(@RequestBody ResponseDto response) {
         logger.info(() -> "got response for request " + response.getRequestId());
         Request request = service.getCrackStatus(response.getRequestId());
-        request.getWorker().setStatus(WorkerStatus.IDLE);
+        workers.freeWorker(request.getWorker().getHostname()); //fixme
         String[] data = response.getData();
         if(data != null) {
             request.setWords(data);
