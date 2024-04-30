@@ -1,6 +1,8 @@
 package ru.nsu.ccfit.muratov.distributed.crack.manager.controller;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -23,6 +25,16 @@ public class RequestController {
 
     @Autowired
     private WorkerService workers;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+
+    @Value("${rabbitmq.exchange.name}")
+    private String exchange;
+
+    @Value("${rabbitmq.routing.key}")
+    private String routingJsonKey;
 
     private final WebClient client = WebClient.create();
 
@@ -48,6 +60,7 @@ public class RequestController {
         Worker worker = workers.getIdleWorker();
         service.getCrackStatus(id).setWorker(worker);
         RequestDto internalDto = new RequestDto(id, hash, maxLength);
+        rabbitTemplate.convertAndSend(exchange, routingJsonKey, internalDto);
         assignTask(internalDto, worker);
 
         return new CrackResponseDto(id);

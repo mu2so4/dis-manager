@@ -18,6 +18,22 @@ services:
     depends_on:
       - manager
 
+
+  rabbitmq:
+    image: rabbitmq:3.6-management-alpine
+
+    ports:
+      # The standard AMQP protocol port
+      - "5672:5672"
+      # HTTP management UI
+      - "15672:15672"
+    networks:
+      - crack-network
+
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+
 networks:
   crack-network:
     driver: bridge
