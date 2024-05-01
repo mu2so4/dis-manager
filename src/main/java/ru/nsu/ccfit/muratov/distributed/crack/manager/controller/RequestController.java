@@ -1,12 +1,7 @@
 package ru.nsu.ccfit.muratov.distributed.crack.manager.controller;
 
-import org.springframework.amqp.AmqpException;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.CrackRequestDto;
@@ -16,30 +11,20 @@ import ru.nsu.ccfit.muratov.distributed.crack.manager.dto.internal.RequestDto;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.Request;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.RequestStatus;
 import ru.nsu.ccfit.muratov.distributed.crack.manager.service.CrackService;
+import ru.nsu.ccfit.muratov.distributed.crack.manager.service.Sender;
 
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.logging.Logger;
 
 @RestController
 @RequestMapping(value = "/api/hash")
-@EnableScheduling
 public class RequestController {
     @Autowired
     private CrackService service;
 
     @Autowired
-    private RabbitTemplate rabbitTemplate;
-
-    @Value("${rabbitmq.request.exchange.name}")
-    private String exchange;
-
-    @Value("${rabbitmq.request.routing.key}")
-    private String routingJsonKey;
+    private Sender<RequestDto> sender;
 
     private static final Logger logger = Logger.getLogger(RequestController.class.getCanonicalName());
-
-    private final Queue<RequestDto> unsentRequests = new LinkedList<>();
 
     @PostMapping(value = "/crack", consumes = "application/json", produces = "application/json")
     public CrackResponseDto createRequest(@RequestBody CrackRequestDto request) {
@@ -51,40 +36,10 @@ public class RequestController {
         String requestId = requestRecord.getRequestId();
         RequestDto internalDto = new RequestDto(requestId, hash, maxLength);
         if(service.isRequestNew()) {
-            sendMessage(internalDto, true);
+            sender.sendMessage(internalDto);
         }
 
         return new CrackResponseDto(requestId);
-    }
-
-    private boolean sendMessage(RequestDto dto, boolean isFirstTry) {
-        try {
-            rabbitTemplate.convertAndSend(exchange, routingJsonKey, dto);
-        }
-        catch (AmqpException e) {
-            logger.severe(() -> "failed to send request: " + e.getMessage());
-            if(isFirstTry) {
-                synchronized (unsentRequests) {
-                    unsentRequests.add(dto);
-                }
-            }
-            return false;
-        }
-        return true;
-    }
-
-    @Scheduled(fixedRate = 10000)
-    private void resendMessages() {
-        while(!unsentRequests.isEmpty()) {
-            RequestDto request = unsentRequests.peek();
-            if(sendMessage(request, false)) {
-                logger.info(() -> "request " + request + " resent successfully");
-                unsentRequests.remove();
-            }
-            else {
-                break;
-            }
-        }
     }
 
 
