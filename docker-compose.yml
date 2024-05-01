@@ -8,8 +8,12 @@ services:
       - "8080:8080"
     depends_on:
       - rabbitmq
+      - mongodb
     networks:
       - crack-network
+    environment:
+      - SPRING_RABBITMQ_USERNAME=manager
+      - SPRING_RABBITMQ_PASSWORD=manager
 
   worker-1:
     image: crack-worker:1.1.0
@@ -20,6 +24,9 @@ services:
       - rabbitmq
     networks:
       - crack-network
+    environment:
+      - SPRING_RABBITMQ_USERNAME=worker
+      - SPRING_RABBITMQ_PASSWORD=worker
 
   worker-2:
     image: crack-worker:1.1.0
@@ -30,22 +37,41 @@ services:
       - rabbitmq
     networks:
       - crack-network
+    environment:
+      - SPRING_RABBITMQ_USERNAME=worker
+      - SPRING_RABBITMQ_PASSWORD=worker
 
 
   rabbitmq:
-    image: rabbitmq:3.6-management-alpine
+    image: rabbitmq:3.13.1-management-alpine
     container_name: rabbitmq
     ports:
       # The standard AMQP protocol port
-      - "5672"
+      - "5672:5672"
       # HTTP management UI
       - "15672:15672"
+    volumes:
+      - rabbitmq-volume:/var/lib/rabbitmq/data
     networks:
       - crack-network
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=admin
 
+  mongodb:
+    container_name: mongodb
+    image: mongo:4.4.29
+    ports:
+      - "27017:27017"
+    volumes:
+      - db-data7:/data/db
+    networks:
+      - crack-network
+
 networks:
   crack-network:
     driver: bridge
+
+volumes:
+  db-data7:
+  rabbitmq-volume:
