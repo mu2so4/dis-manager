@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
   manager:
-    image: crack-manager:1.1.1
+    image: crack-manager:1.2.0
     container_name: manager
     ports:
       - "8080:8080"
@@ -14,6 +14,7 @@ services:
     environment:
       - SPRING_RABBITMQ_USERNAME=manager
       - SPRING_RABBITMQ_PASSWORD=manager
+      - SPRING_RABBITMQ_HOST=rabbitmq
       - SPRING_DATA_MONGODB_HOST=mongodb
 
   worker-1:
