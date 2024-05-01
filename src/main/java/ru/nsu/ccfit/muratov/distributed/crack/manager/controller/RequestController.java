@@ -39,17 +39,18 @@ public class RequestController {
         String hash = request.getHash();
         int maxLength = request.getMaxLength();
 
-        String id = service.createCrackRequest(hash, maxLength);
-        RequestDto internalDto = new RequestDto(id, hash, maxLength);
+        Request requestRecord = service.createCrackRequest(hash, maxLength);
+        String requestId = requestRecord.getRequestId();
+        RequestDto internalDto = new RequestDto(requestId, hash, maxLength);
         rabbitTemplate.convertAndSend(exchange, routingJsonKey, internalDto);
 
-        return new CrackResponseDto(id);
+        return new CrackResponseDto(requestId);
     }
 
 
     @GetMapping(value = "/status", consumes = "application/json", produces = "application/json")
     public StatusDto getStatus(@RequestParam(name="requestId") String id) {
-        Request request = service.getCrackStatus(id);
+        Request request = service.getRequest(id);
         if(request == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no request found");
         }
