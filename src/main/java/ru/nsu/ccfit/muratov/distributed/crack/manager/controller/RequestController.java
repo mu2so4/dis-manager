@@ -42,7 +42,9 @@ public class RequestController {
         Request requestRecord = service.createCrackRequest(hash, maxLength);
         String requestId = requestRecord.getRequestId();
         RequestDto internalDto = new RequestDto(requestId, hash, maxLength);
-        rabbitTemplate.convertAndSend(exchange, routingJsonKey, internalDto);
+        if(service.isRequestNew()) {
+            rabbitTemplate.convertAndSend(exchange, routingJsonKey, internalDto);
+        }
 
         return new CrackResponseDto(requestId);
     }
@@ -61,5 +63,10 @@ public class RequestController {
             dto.setData(request.getWords());
         }
         return dto;
+    }
+
+    @DeleteMapping(value = "/crack")
+    public void deleteDatabase() {
+        service.deleteAll();
     }
 }

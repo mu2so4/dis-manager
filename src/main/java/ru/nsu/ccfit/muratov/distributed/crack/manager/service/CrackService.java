@@ -6,4 +6,8 @@ public interface CrackService {
     Request getRequest(String requestId);
 
     void updateRequest(String requestId, String[] data);
+
+    boolean isRequestNew();
+
+    void deleteAll();
 }

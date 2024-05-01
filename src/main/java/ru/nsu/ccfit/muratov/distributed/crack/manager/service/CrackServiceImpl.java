@@ -12,21 +12,21 @@ import java.util.UUID;
 public class CrackServiceImpl implements CrackService {
     private final List<Request> database = new ArrayList<>();
 
+    private boolean isRequestNew = true;
+
     @Autowired
     private RequestRepository repository;
-
-    /*public CrackServiceImpl() {
-        database = repository.findAll();
-    }*/
 
     @Override
     public Request createCrackRequest(String hash, int maxLength) {
         for(Request request: database) {
             if(maxLength <= request.getMaxLength() && hash.equals(request.getHash())) {
+                isRequestNew = false;
                 return request;
             }
         }
 
+        isRequestNew = true;
         Request request = new Request();
         request.setRequestId(UUID.randomUUID().toString());
         request.setHash(hash);
@@ -56,7 +56,16 @@ public class CrackServiceImpl implements CrackService {
         else {
             request.setStatus(RequestStatus.ERROR);
         }
-        //todo updating in db
         repository.save(request);
+    }
+
+    @Override
+    public boolean isRequestNew() {
+        return isRequestNew;
+    }
+
+    @Override
+    public void deleteAll() {
+        repository.deleteAll();
     }
 }
