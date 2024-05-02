@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
   manager:
-    image: crack-manager:1.3.0
+    image: crack-manager:1.4.0
     container_name: manager
     ports:
       - "8080:8080"
@@ -80,6 +80,8 @@ services:
 
 networks:
   crack-network:
+    driver: bridge
+  mongo-cluster:
     driver: bridge
 
 volumes:
