@@ -18,7 +18,7 @@ services:
       - SPRING_RABBITMQ_USERNAME=manager
       - SPRING_RABBITMQ_PASSWORD=manager
       - SPRING_RABBITMQ_HOST=rabbitmq
-      - SPRING_DATA_MONGODB_HOST=mongo-1
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo-1:27017,mongo-2:27018,mongo-3:27019
       - SPRING_DATA_MONGODB_USERNAME
       - SPRING_DATA_MONGODB_PASSWORD
 
