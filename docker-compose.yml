@@ -19,6 +19,8 @@ services:
       - SPRING_RABBITMQ_PASSWORD=manager
       - SPRING_RABBITMQ_HOST=rabbitmq
       - SPRING_DATA_MONGODB_HOST=mongo-1
+      - SPRING_DATA_MONGODB_USERNAME
+      - SPRING_DATA_MONGODB_PASSWORD
 
   worker-1:
     image: crack-worker:1.2.1
