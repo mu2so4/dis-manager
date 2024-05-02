@@ -84,5 +84,6 @@ public class CrackServiceImpl implements CrackService {
     @Override
     public synchronized void deleteAll() {
         repository.deleteAll();
+        database.removeIf(r -> r.getStatus() != RequestStatus.IN_PROGRESS);
     }
 }
