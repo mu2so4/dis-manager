@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.7"
 
 services:
   manager:
@@ -8,14 +8,17 @@ services:
       - "8080:8080"
     depends_on:
       - rabbitmq
-      - mongodb
+      - mongo-1
+      - mongo-2
+      - mongo-3
     networks:
       - crack-network
+      - mongo-cluster
     environment:
       - SPRING_RABBITMQ_USERNAME=manager
       - SPRING_RABBITMQ_PASSWORD=manager
       - SPRING_RABBITMQ_HOST=rabbitmq
-      - SPRING_DATA_MONGODB_HOST=mongodb
+      - SPRING_DATA_MONGODB_HOST=mongo-1
 
   worker-1:
     image: crack-worker:1.2.1
@@ -62,20 +65,61 @@ services:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=admin
 
-  mongodb:
-    container_name: mongodb
+  mongo-1:
+    container_name: mongo-1
     image: mongo:4.4.29
+    command: --replSet crack-rs --bind_ip_all --port 27017
     ports:
       - "27017:27017"
     volumes:
       - ./mongo-entrypoint:/docker-entrypoint-initdb.d
       - db-data4:/data/db
       - mongo-config:/data/configdb
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'crack-rs',members:[{_id:0,host:'mongo-1:27017',priority:1},{_id:1,host:'mongo-2:27018',priority:0.5},{_id:2,host:'mongo-3:27019',priority:0.5}]}) }" | mongo --port 27017 --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      retries: 30
     networks:
-      - crack-network
+      - mongo-cluster
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=manager
-      - MONGO_INITDB_ROOT_PASSWORD=manager
+      #- MONGO_INITDB_ROOT_USERNAME=manager
+      #- MONGO_INITDB_ROOT_PASSWORD=manager
+      - MONGO_INITDB_DATABASE=crack
+
+  mongo-2:
+    container_name: mongo-2
+    image: mongo:4.4.29
+    command: --replSet crack-rs --bind_ip_all --port 27018
+    ports:
+      - "27018:27018"
+    volumes:
+      - ./mongo-entrypoint:/docker-entrypoint-initdb.d
+      - db-data4-2:/data/db2
+      - mongo-config-2:/data/configdb2
+    networks:
+      - mongo-cluster
+    environment:
+      #- MONGO_INITDB_ROOT_USERNAME=manager
+      #- MONGO_INITDB_ROOT_PASSWORD=manager
+      - MONGO_INITDB_DATABASE=crack
+
+  mongo-3:
+    container_name: mongo-3
+    image: mongo:4.4.29
+    command: --replSet crack-rs --bind_ip_all --port 27019
+    ports:
+      - "27019:27019"
+    volumes:
+      - ./mongo-entrypoint:/docker-entrypoint-initdb.d
+      - db-data4-3:/data/db3
+      - mongo-config-3:/data/configdb3
+    networks:
+      - mongo-cluster
+    environment:
+      #- MONGO_INITDB_ROOT_USERNAME=manager
+      #- MONGO_INITDB_ROOT_PASSWORD=manager
       - MONGO_INITDB_DATABASE=crack
 
 networks:
@@ -86,5 +130,11 @@ networks:
 
 volumes:
   db-data4:
+  db-data4-2:
+  db-data4-3:
   mongo-config:
+  mongo-config-2:
+  mongo-config-3:
   rabbitmq-volume:
+  rabbitmq-volume-2:
+  rabbitmq-volume-3:
