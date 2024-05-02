@@ -1,4 +1,4 @@
-package ru.nsu.ccfit.muratov.distributed.crack.manager;
+package ru.nsu.ccfit.muratov.distributed.crack.manager.configuration;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;

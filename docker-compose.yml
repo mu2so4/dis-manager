@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   manager:
-    image: crack-manager:1.4.0
+    image: crack-manager:1.4.1
     container_name: manager
     ports:
       - "8080:8080"
